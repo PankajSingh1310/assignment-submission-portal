@@ -3,6 +3,6 @@ const { adminRegister } = require("../controllers/admin-controller");
 
 const router = express.Router();
 
-router.get("/register", adminRegister)
+router.post("/register", adminRegister)
 
 module.exports = router;
