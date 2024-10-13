@@ -13,10 +13,10 @@ const adminSchema = mongoose.Schema({
         type: String,
         require: true
     },
-    assignments: {
+    assignments: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Notes"
-    }
+        ref: "Assignment"
+    }]
 });
 
 const Admin = mongoose.model("Admin", adminSchema);

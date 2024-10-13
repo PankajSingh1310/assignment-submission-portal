@@ -23,7 +23,7 @@ const userRegister = async (req, res) => {
                 const token = generateToken(user);
                 res.cookie("token", token);
 
-                res.status(201).json({message: "user created successfully"});
+                res.status(201).json({message: "user created successfully", token});
             });
         });
         
@@ -47,7 +47,7 @@ const userLogin = async (req, res) => {
             const token = generateToken(userExist);
             res.cookie("token", token);
 
-            res.status(200).json({message: "you can login"})
+            res.status(200).json({message: "you can login", token})
         })
     } catch (error) {
         res.status(500).json({error});
@@ -69,9 +69,16 @@ const uploadAssignment = async (req, res) => {
             userId: id
         })
 
+        taggedAdmin.assignments.push(createdAssignment._id);
+        await taggedAdmin.save();
+
+        const submittedBy = await userModel.findOne({_id: id});
+        submittedBy.assignments.push(createdAssignment._id);
+        await submittedBy.save();
+
         res.status(201).json({message: "assignment submitted successfully", createdAssignment});
     } catch (error) {
-        return res.status(500).json({error});
+        return res.status(500).json({error: "Internal Server Error"});
     } 
 };
 

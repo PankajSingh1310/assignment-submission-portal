@@ -1,5 +1,7 @@
 const adminModel = require("../models/admin-model");
 const bcrypt = require("bcrypt");
+const generateToken = require("../utils/generateToken");
+const assignmentModel = require("../models/assignment-model");
 
 const adminRegister = async (req, res) => {
     
@@ -17,7 +19,10 @@ const adminRegister = async (req, res) => {
                     password: hash
                 });
 
-                res.status(201).json({message: "user created successfully"});
+                const token = generateToken(admin);
+                res.cookie("token", token);
+
+                res.status(201).json({message: "user created successfully", token});
             });
         });
         
@@ -37,11 +42,59 @@ const adminLogin = async (req, res) => {
             
             if(!result) return res.status(401).json("email or password is wrong");
 
-            res.status(200).json({message: "you can login"})
+            const token = generateToken(adminExist);
+            res.cookie("token", token);
+
+            res.status(200).json({message: "you can login", token});
         })
     } catch (error) {
         res.status(500).json({error});
     }
 }
 
-module.exports = {adminRegister, adminLogin}
+const getTaggedAssignments = async (req, res) => {
+    
+    try {
+        const { id } = req.user
+        const taggedAssignments = await adminModel.findOne({_id: id}).populate("assignments");
+        if(!taggedAssignments) return res.status(204).json({message: "no tagged assignments"});
+
+        res.status(200).json({taggedAssignments: taggedAssignments.assignments});
+    } catch (error) {
+        res.status(500).json({error: "Internal server error"});
+    }
+}
+
+const rejectAssignment = async (req, res) => {
+    
+    try {
+        const {id} = req.params;
+        const assignment = await assignmentModel.findOne({_id: id});
+        if(!assignment) return res.status(404).json({message: "there is no such assignment"});
+
+        assignment.status = "Rejected";
+        await assignment.save();
+        
+        res.status(200).json({message: "Assignment Rejected"});
+    } catch (error) {
+        res.status(500).json({error: "Internal Server Error"});
+    } 
+};
+
+const acceptAssignment = async (req, res) => {
+    
+    try {
+        const {id} = req.params;
+        const assignment = await assignmentModel.findOne({_id: id});
+        if(!assignment) return res.status(404).json({message: "there is no such assignment"});
+
+        assignment.status = "Accepted";
+        await assignment.save();
+        
+        res.status(200).json({message: "Assignment Accepted"});
+    } catch (error) {
+        res.status(500).json({error: "Internal Server Error"});
+    } 
+};
+
+module.exports = {adminRegister, adminLogin, getTaggedAssignments, rejectAssignment, acceptAssignment}

@@ -13,10 +13,10 @@ const userSchema = mongoose.Schema({
         type: String,
         require: true
     },
-    assignments: {
+    assignments: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Notes"
-    }
+        ref: "Assignment"
+    }]
 });
 
 const User = mongoose.model("User", userSchema);
