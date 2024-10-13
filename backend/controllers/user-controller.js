@@ -1,6 +1,8 @@
 const userModel = require("../models/user-model");
 const bcrypt = require("bcrypt");
 const assignmentModel = require("../models/assignment-model");
+const adminModel = require("../models/admin-model");
+const generateToken = require("../utils/generateToken");
 
 const userRegister = async (req, res) => {
     
@@ -17,6 +19,9 @@ const userRegister = async (req, res) => {
                     email,
                     password: hash
                 });
+
+                const token = generateToken(user);
+                res.cookie("token", token);
 
                 res.status(201).json({message: "user created successfully"});
             });
@@ -39,6 +44,9 @@ const userLogin = async (req, res) => {
             
             if(!result) return res.status(401).json("email or password is wrong");
 
+            const token = generateToken(userExist);
+            res.cookie("token", token);
+
             res.status(200).json({message: "you can login"})
         })
     } catch (error) {
@@ -48,12 +56,35 @@ const userLogin = async (req, res) => {
 
 const uploadAssignment = async (req, res) => {
 
-    const { task } = req.body;
+    try {
+        const { task, adminName } = req.body;
+        const { id } = req.user;
     
+        const taggedAdmin = await adminModel.findOne({fullname: adminName});
+        if(!taggedAdmin) return res.status(401).json({message: "no such admin is found"});
+    
+        const createdAssignment = await assignmentModel.create({
+            task,
+            adminId: taggedAdmin._id,
+            userId: id
+        })
 
-    const createdAssignment = await assignmentModel.create({
-        task
-    })
+        res.status(201).json({message: "assignment submitted successfully", createdAssignment});
+    } catch (error) {
+        return res.status(500).json({error});
+    } 
+};
+
+const getAllAdmins = async (req, res) => {
+
+    try {
+        const admins = await adminModel.find().select("-password");
+        if(!admins) return res.status(401).json({message: "no admin to show"});
+
+        res.status(200).json({admins});
+    } catch (error) {
+        res.status(500).json({error});
+    }
 }
 
-module.exports = {userRegister, userLogin, uploadAssignment}
+module.exports = {userRegister, userLogin, uploadAssignment, getAllAdmins}
