@@ -26,4 +26,22 @@ const adminRegister = async (req, res) => {
     }
 }
 
-module.exports = {adminRegister}
+const adminLogin = async (req, res) => {
+    try {
+        const {email, password} = req.body;
+
+        const adminExist = await adminModel.findOne({email});
+        if(!adminExist) return res.status(401).json("email or password is wrong");
+
+        bcrypt.compare(password, adminExist.password, function (err, result){
+            
+            if(!result) return res.status(401).json("email or password is wrong");
+
+            res.status(200).json({message: "you can login"})
+        })
+    } catch (error) {
+        res.status(500).json({error});
+    }
+}
+
+module.exports = {adminRegister, adminLogin}
