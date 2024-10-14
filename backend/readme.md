@@ -24,12 +24,30 @@ It also has admin panel in which the admins will be able to accept or reject the
 
 ## Installation
 ## Steps:
-1. Clone repository:
+### 1. **Clone repository:**
 
-`git clone https://github.com/PankajSingh1310/assignment-submission-portal.git`
+```
+git clone https://github.com/PankajSingh1310/assignment-submission-portal.git
+```
 
-2. Install dependencies:
+### 2. **Install dependencies:**
 
-`npm install`
+``` 
+npm install 
+```
+### 3. **Setup environment variable**
+
+* create a .env file in the root directory and paste these variable in this file.
+* make sure to change the **MONGO_URI** and **JWT_KEY**.
+```
+PORT = 3000
+MONGO_URI = mongodb://127.0.0.1:27017/<Name of the project>
+JWT_KEY = <your secret key here>
+```
+### 4. **Start the server**
+```
+npm start
+```
+
 
 
