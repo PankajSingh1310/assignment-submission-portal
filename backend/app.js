@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const app = express();
 const cookieParser = require("cookie-parser");
@@ -14,7 +15,7 @@ app.use(express.urlencoded({extended: true}));
 app.use("/user", userRouter);
 app.use("/admin", adminRouter);
 
-const port = 3000;
+const port = process.env.PORT;
 app.listen(port, () => {
     console.log(`server is listening on port ${port}`);
 });

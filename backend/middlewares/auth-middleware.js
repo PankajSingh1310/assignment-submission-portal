@@ -5,7 +5,7 @@ const isLoggedIn = async (req, res, next) => {
         const token = req.cookies.token;
         if(!token) return res.status(401).json({message: "Access denied"});
 
-        const decoded = jwt.verify(token, "secretKey");
+        const decoded = jwt.verify(token, process.env.JWT_KEY);
         req.user = decoded;
 
         next();
